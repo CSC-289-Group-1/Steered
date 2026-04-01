@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, url_for, session, request
+from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_db, init_app
 
 
@@ -30,7 +31,7 @@ def create_app():
                 'SELECT * FROM users WHERE username = ?', (username,)
             ).fetchone()
 
-            if user is None or user['password'] != password:
+            if user is None or not check_password_hash(user['password'], password):
                 error = 'Invalid username or password.'
 
             if error is None:
