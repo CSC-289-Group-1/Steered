@@ -1,40 +1,58 @@
+import os
 from flask import Flask, render_template, redirect, url_for, session, request
-
-app = Flask(__name__)
-app.secret_key = 'change-this-in-production'  # Required for session support
-
-@app.route('/')
-def index():
-    return 'Hello, World! Your Flask app is running. <a href="/login">Go to Login</a>'
-users = {  
-    'user1':'pass',
-    'user2':'word',
-    'admin': 'password123'}
+from .db import get_db, init_app
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if users.get(username) == password:
-            session['username'] = username
-            return redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', error='Invalid username or password.')
-    return render_template('login.html')
+def create_app():
+    app = Flask(__name__)
+    app.config.from_mapping(
+        SECRET_KEY='change-this-in-production',
+        DATABASE=os.path.join(app.instance_path, 'steered.sqlite'),
+    )
 
-@app.route('/dashboard')
-def dashboard():
-    username = session.get('username')
-    if not username:
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    init_app(app)
+
+    @app.route('/')
+    def index():
+        return 'Hello, World! Your Flask app is running. <a href="/login">Go to Login</a>'
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            db = get_db()
+            error = None
+
+            user = db.execute(
+                'SELECT * FROM users WHERE username = ?', (username,)
+            ).fetchone()
+
+            if user is None or user['password'] != password:
+                error = 'Invalid username or password.'
+
+            if error is None:
+                session.clear()
+                session['user_id'] = user['id']
+                session['username'] = user['username']
+                return redirect(url_for('dashboard'))
+
+            return render_template('login.html', error=error)
+
+        return render_template('login.html')
+
+    @app.route('/dashboard')
+    def dashboard():
+        username = session.get('username')
+        if not username:
+            return redirect(url_for('login'))
+        return render_template('dashboard.html', username=username)
+
+    @app.route('/logout')
+    def logout():
+        session.clear()
         return redirect(url_for('login'))
-    return render_template('dashboard.html', username=username)
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return app
