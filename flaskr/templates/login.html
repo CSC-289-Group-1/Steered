@@ -1,21 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login — Steered{% endblock %}
 
 {% block content %}
-<h1>Login</h1>
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-{% if error %}
-  <p style="color: red;">{{ error }}</p>
-{% endif %}
+    <div class="brand">
+      <h1>Steered</h1>
+      <p>Sign in to your account</p>
+    </div>
 
-<form method="POST" action="{{ url_for('login') }}">
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username" required>
+    {% if error %}
+      <div class="alert-error">{{ error }}</div>
+    {% endif %}
 
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" required>
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+      </div>
 
-  <button type="submit">Login</button>
-</form>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+
+
+</div>
+</div>
 {% endblock %}
