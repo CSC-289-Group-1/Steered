@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="home-grid">
+  <div class="home-main-col">
+    <section class="hero-card">
+      <div class="hero-copy">
+        <h1 class="hero-title">Your reading universe starts today</h1>
+        <p class="hero-subtitle">
+          Discover books with rich previews, genre-based discovery, and a cleaner recommendation experience built for focus.
+        </p>
+        <a href="/search?category=books" class="hero-cta">Explore Library</a>
+      </div>
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="shape shape-a"></div>
+        <div class="shape shape-b"></div>
+        <div class="shape shape-c"></div>
+      </div>
+    </section>
+
+    <section class="search-panel">
+      <form class="search-form" action="/search" method="get">
+        <input class="search-input" type="text" name="q" placeholder="Search books..." />
+        <button class="search-button" type="submit">Search</button>
+      </form>
+      <div class="categories-wrap">
+        <button class="category-pill is-active" type="button"><span class="category-label show">Books</span></button>
+      </div>
+    </section>
+
+    <section class="section-card widget-row">
+      <div class="widget book-of-day-widget">
+        <p class="widget-label">Book of the day</p>
+        {% if status == 'success' and book_of_day %}
+        <article class="book-card square">
+          <div class="book-cover-wrap">
+            <img src="{{ book_of_day.coverImage }}" alt="Cover of {{ book_of_day.title }}" class="book-cover" />
+          </div>
+          <div class="book-body">
+            <p class="book-year">{{ book_of_day.year }}</p>
+            <h3 class="book-title">{{ book_of_day.title }}</h3>
+            <p class="book-meta">{{ book_of_day.authors }}</p>
+            <p class="book-hover-preview">{{ book_of_day.excerpt }}</p>
+            <a class="preview-link" href="/book/{{ book_of_day.id | urlencode }}?title={{ book_of_day.title | urlencode }}&authors={{ book_of_day.authors | urlencode }}&year={{ book_of_day.year | urlencode }}&cover={{ book_of_day.coverImage | urlencode }}&link={{ book_of_day.previewLink | urlencode }}&description={{ book_of_day.description | urlencode }}">Open preview</a>
+          </div>
+        </article>
+        {% elif status == 'loading' %}
+        <p class="status-message">Selecting book of the day...</p>
+        {% elif status == 'error' %}
+        <p class="status-message error">{{ error }}</p>
+        {% endif %}
+      </div>
+
+      <div class="widget filter-widget">
+        <div class="section-head">
+          <h2 class="section-title">Discover by genre</h2>
+          <p class="section-subtitle">Tailor recommendations to your preferences.</p>
+        </div>
+        <div class="genre-filters" aria-label="Genre filters">
+          {% for item in supported_genres %}
+          <a
+            href="/?genre={{ item | urlencode }}"
+            class="genre-chip {% if genre == item %}active{% endif %}"
+          >{{ item }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <div class="section-head">
+        <h2 class="section-title">Recommended for you</h2>
+        <p class="section-subtitle">Curated suggestions, enriched with Open Library descriptions.</p>
+      </div>
+
+      {% if status == 'loading' %}
+      <p class="status-message">Loading recommendations...</p>
+      {% elif status == 'error' %}
+      <p class="status-message error">{{ error }}</p>
+      {% endif %}
+
+      {% if status == 'success' %}
+      <div class="results-grid cards-home">
+        {% for book in showcase_books %}
+        <article class="book-card square">
+          <div class="book-cover-wrap">
+            <img src="{{ book.coverImage }}" alt="Cover of {{ book.title }}" class="book-cover" />
+          </div>
+          <div class="book-body">
+            <p class="book-year">{{ book.year }}</p>
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-meta">{{ book.authors }}</p>
+            <p class="book-hover-preview">{{ book.excerpt }}</p>
+            <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="featured-rail">
+    <h3 class="rail-title">Quick widgets</h3>
+    <div class="rail-widget compact">
+      <p class="widget-label">Reading streak</p>
+      <p class="rail-number">12 days</p>
+      <p class="rail-muted">Keep momentum with 15 mins/day.</p>
+    </div>
+
+    <div class="rail-widget compact">
+      <p class="widget-label">Top category</p>
+      <p class="rail-number">Fantasy</p>
+      <p class="rail-muted">Based on your latest activity.</p>
+    </div>
+
+    <div class="rail-widget compact">
+      <p class="widget-label">Saved books</p>
+      <p class="rail-number">27</p>
+      <p class="rail-muted">Bookmarks are ready for your next session.</p>
+    </div>
+  </aside>
+</section>
+{% endblock %}

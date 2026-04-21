@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="results-header section-card">
+  <h1 class="results-title">Books</h1>
+  <p class="results-subtitle">Search results powered by Open Library metadata API</p>
+  <form class="search-form" action="/search" method="get">
+    <input class="search-input" type="text" name="q" value="{{ query }}" placeholder="Search books..." />
+    <button class="search-button" type="submit">Search</button>
+  </form>
+  <div class="categories-wrap">
+    <button class="category-pill is-active" type="button"><span class="category-label show">Books</span></button>
+  </div>
+</section>
+
+<section class="section-card results-section" aria-live="polite">
+  <div class="section-head">
+    <h2 class="section-title">{{ section_title }}</h2>
+    <p class="section-subtitle">
+      Showing title, author, publication year, ISBN, cover, and details link.
+    </p>
+  </div>
+
+  {% if status == 'loading' %}
+  <p class="status-message">Loading books...</p>
+  {% elif status == 'error' %}
+  <p class="status-message error">{{ error_message }}</p>
+  {% elif status == 'success' and display_books|length == 0 %}
+  <p class="status-message">No books found for “{{ query }}”.</p>
+  {% elif status == 'success' %}
+  <div class="results-grid">
+    {% for book in display_books %}
+    <article class="book-card square">
+      <div class="book-cover-wrap">
+        <img src="{{ book.coverImage }}" alt="Cover of {{ book.title }}" class="book-cover" />
+      </div>
+      <div class="book-body">
+        <p class="book-year">{{ book.year }}</p>
+        <h3 class="book-title">{{ book.title }}</h3>
+        <p class="book-meta">{{ book.authors }}</p>
+        <p class="book-hover-preview">{{ book.excerpt }}</p>
+        <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
