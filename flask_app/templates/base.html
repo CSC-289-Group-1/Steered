@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" data-theme="{{ theme }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>STEERED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="content-area">
+        <header class="top-header">
+          <div class="brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span class="brand-name">STEERED</span>
+          </div>
+
+          <nav class="top-menu" aria-label="Top menu">
+            <a href="/" class="menu-link">Dashboard</a>
+            <a href="#" class="menu-link">Docs</a>
+            <a href="#" class="menu-link">APIs</a>
+            <a href="https://github.com/" class="menu-link" target="_blank" rel="noreferrer noopener">GitHub</a>
+          </nav>
+
+          <div class="top-actions">
+            <div class="user-pill">
+              <span class="avatar" aria-hidden="true">SR</span>
+              <span>Hi, Reader</span>
+            </div>
+            <button type="button" class="primary-pill">Start Reading</button>
+            {% set next_theme = 'dark' if theme == 'light' else 'light' %}
+            <a
+              href="{{ url_for('set_theme', theme=next_theme, next=request.full_path if request.query_string else request.path) }}"
+              class="theme-pill icon-only"
+              aria-label="Switch to {{ next_theme }} mode"
+              title="Enable {{ next_theme }} mode"
+            >
+              {% if theme == 'light' %}
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 1 0 10.5 10.5Z" />
+              </svg>
+              {% else %}
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.5" />
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.2 2.2M16.9 16.9l2.2 2.2M19.1 4.9l-2.2 2.2M7.1 16.9l-2.2 2.2" />
+              </svg>
+              {% endif %}
+            </a>
+          </div>
+        </header>
+
+        {% block content %}{% endblock %}
+      </main>
+
+      <nav class="right-nav" aria-label="Primary navigation">
+        <a href="/" class="nav-icon-btn {% if page == 'home' %}active{% endif %}" aria-label="Home" title="Home">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5.5v-7h-5v7H4a1 1 0 0 1-1-1v-9Z" />
+          </svg>
+        </a>
+
+        <a href="/search" class="nav-icon-btn {% if page == 'search' %}active{% endif %}" aria-label="Search" title="Search">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 5 5" />
+          </svg>
+        </a>
+
+        <a href="/search?tab=discovery" class="nav-icon-btn {% if page == 'search' %}active{% endif %}" aria-label="Discovery" title="Discovery">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="m15.7 8.3-2.8 6.2-6.2 2.8 2.8-6.2 6.2-2.8Z" />
+          </svg>
+        </a>
+
+        <a href="/search?tab=bookmarks" class="nav-icon-btn {% if page == 'search' %}active{% endif %}" aria-label="Bookmarks" title="Bookmarks">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <path d="M6 3h12v18l-6-3.8L6 21V3Z" />
+          </svg>
+        </a>
+      </nav>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
