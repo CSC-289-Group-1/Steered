@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, request, url_for
 import os
 
-from services.books_service import (
+from .services.books_service import (
     fetch_book_details_by_id,
     fetch_books_by_genre,
     fetch_trending_books,
@@ -10,6 +10,10 @@ from services.books_service import (
 )
 
 app = Flask(__name__)
+
+
+def create_app():
+    return app
 
 
 @app.route("/")
