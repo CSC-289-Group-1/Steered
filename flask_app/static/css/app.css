@@ -621,12 +621,15 @@
 }
 
 .comment-item {
+  
   background: var(--bg-soft-alt);
   border-radius: 10px;
   padding: 10px;
 }
 
 .comment-item p {
+  word-wrap: break-word;
+  max-width: 505px;
   margin: 0 0 6px;
   color: var(--text-main);
 }

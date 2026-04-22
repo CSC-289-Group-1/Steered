@@ -1,4 +1,5 @@
 from flask import Flask, redirect, render_template, request, url_for
+import os
 
 from services.books_service import (
     fetch_book_details_by_id,
@@ -132,4 +133,4 @@ def set_theme():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
