@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="preview-page section-card">
+  <div class="preview-cover-wrap">
+    <img src="{{ book.coverImage }}" alt="Cover of {{ book.title }}" class="preview-cover" />
+    <div class="excerpt-widget" title="{{ book.excerpt }}">
+      <h3>Book Excerpt</h3>
+      <p>{{ book.excerpt }}</p>
+    </div>
+  </div>
+
+  <div class="preview-content">
+    <div class="preview-actions preview-actions-top">
+      <a class="preview-link icon-back-link" href="/search" aria-label="Back to search">
+        <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+          <path d="M15 5 8 12l7 7" />
+        </svg>
+      </a>
+
+      <a class="preview-link icon-expand-link" href="{{ book.previewLink }}" target="_blank" rel="noreferrer noopener" aria-label="Open in Open Library">
+        <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+          <path d="M14 5h5v5" />
+          <path d="M10 14 19 5" />
+          <path d="M19 14v4a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1h4" />
+        </svg>
+        <span>Open Library</span>
+      </a>
+    </div>
+
+    <p class="preview-id">Book ID: {{ book.id }}</p>
+    <h1 class="preview-title">{{ book.title }}</h1>
+
+    <div class="preview-description-box">
+      <div class="preview-meta-row">
+        <p class="preview-meta"><strong>Author(s):</strong> {{ book.authors }}</p>
+        <p class="preview-meta"><strong>Published:</strong> {{ book.year }}</p>
+        <p class="preview-meta"><strong>ISBN:</strong> {{ book.isbn }}</p>
+        <p class="preview-meta"><strong>Overall rating:</strong> {{ book.rating }}</p>
+      </div>
+      <h2>Description</h2>
+      <p>{{ book.description }}</p>
+    </div>
+
+    <section class="preview-widget">
+      <h2>Book Preview</h2>
+      {% if preview_stage == 'sourceNotice' %}
+      <div class="preview-state-screen">
+        <p class="status-message">Preview source: Open Library / Internet Archive.</p>
+        <a class="search-button eye-button" href="{{ book.previewEmbedUrl }}" target="_blank" rel="noreferrer noopener" aria-label="Open preview" title="Open preview">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6Z" />
+            <circle cx="12" cy="12" r="2.8" />
+          </svg>
+        </a>
+      </div>
+      {% else %}
+      <div class="preview-state-screen">
+        <p class="status-message">This book has no preview.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="review-layout">
+      <div class="review-section">
+        <h2>Reviews & Comments</h2>
+        <form class="review-form" onsubmit="return false;">
+          <label for="review-input" class="visually-hidden">Add a comment</label>
+          <textarea id="review-input" class="review-input" placeholder="Write your thoughts about this book..." rows="3"></textarea>
+          <button type="button" class="search-button" id="post-comment-btn">Post Comment</button>
+        </form>
+        <div class="comment-list" id="comment-list">
+          <p class="status-message">No comments yet. Be the first to add a review.</p>
+        </div>
+      </div>
+
+      <aside class="rating-widget rail-widget compact">
+        <h3>User rating</h3>
+        <p class="rating-value" id="rating-value">No rating yet</p>
+        <div class="star-row" role="radiogroup" aria-label="Rate this book from 1 to 5">
+          {% for value in [1,2,3,4,5] %}
+          <button type="button" class="star-btn" data-rating="{{ value }}" aria-label="{{ value }} star{% if value > 1 %}s{% endif %}" role="radio" aria-checked="false">
+            <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+              <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+            </svg>
+          </button>
+          {% endfor %}
+        </div>
+        <p class="rail-muted">Tap a star to set your local rating.</p>
+      </aside>
+    </section>
+
+    {% if details_status == 'error' %}
+    <p class="status-message error">{{ details_error }}</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

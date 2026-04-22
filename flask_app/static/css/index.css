@@ -1,0 +1,59 @@
+:root {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #2b2b33;
+  background: #f6f0e2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --bg-page: #f6f0e2;
+  --bg-surface: #fffdf8;
+  --bg-soft: #fff3da;
+  --bg-soft-alt: #fff8eb;
+  --text-main: #2b2b33;
+  --text-muted: #666674;
+  --accent-yellow: #ffd45d;
+  --accent-red: #ef6b5f;
+  --accent-green: #78b86d;
+  --accent-blue-gray: #6f7e95;
+}
+
+:root[data-theme='dark'] {
+  color: #e6ebf5;
+  background: #2a3442;
+
+  --bg-page: #2a3442;
+  --bg-surface: #334153;
+  --bg-soft: #3d4a5d;
+  --bg-soft-alt: #435266;
+  --text-main: #e8edf8;
+  --text-muted: #bcc6d8;
+  --accent-yellow: #f4cf62;
+  --accent-red: #e77267;
+  --accent-green: #86c67c;
+  --accent-blue-gray: #93a6c4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-page);
+  color: var(--text-main);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
