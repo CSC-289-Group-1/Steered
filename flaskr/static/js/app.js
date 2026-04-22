@@ -1,4 +1,22 @@
 (function () {
+  const userBtn = document.getElementById('user-menu-btn');
+  const userMenu = document.getElementById('user-menu');
+
+  if (userBtn && userMenu) {
+    userBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const open = userMenu.classList.toggle('open');
+      userBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', function () {
+      userMenu.classList.remove('open');
+      userBtn.setAttribute('aria-expanded', 'false');
+    });
+  }
+})();
+
+(function () {
   const commentInput = document.getElementById('review-input');
   const postCommentBtn = document.getElementById('post-comment-btn');
   const commentList = document.getElementById('comment-list');
