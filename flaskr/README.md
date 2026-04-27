@@ -16,6 +16,9 @@ This folder contains the Flask-based implementation of the former React prototyp
 
 ## Run locally
 
+to create fresh db:
+- flask --app flaskr init-db
+
 ```powershell
 - cd steered\flask_app
 - python -m venv .venv
