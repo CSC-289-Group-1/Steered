@@ -1,6 +1,9 @@
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, session, url_for
+from flask_caching import Cache
 import os
+from werkzeug.security import check_password_hash, generate_password_hash
 
+from . import db
 from .services.books_service import (
     fetch_book_details_by_id,
     fetch_books_by_genre,
@@ -9,7 +12,40 @@ from .services.books_service import (
     supported_genres,
 )
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-change-me')
+app.config['DATABASE'] = os.path.join(app.instance_path, 'steered.sqlite')
+app.config['CACHE_TYPE'] = 'SimpleCache'
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+
+os.makedirs(app.instance_path, exist_ok=True)
+db.init_app(app)
+cache = Cache(app)
+
+
+@cache.cached(timeout=300, key_prefix="trending")
+def get_trending():
+    return fetch_trending_books()
+
+
+@cache.memoize(timeout=300)
+def get_books_by_genre(genre):
+    return fetch_books_by_genre(genre)
+
+
+@cache.memoize(timeout=300)
+def get_book_details(book_id):
+    return fetch_book_details_by_id(book_id)
+
+
+@cache.memoize(timeout=300)
+def get_search_results(query):
+    return search_books(query)
+
+
+@app.context_processor
+def inject_user():
+    return {"current_user": session.get("username")}
 
 
 def create_app():
@@ -25,9 +61,9 @@ def home():
 
     try:
         if genre == "All":
-            books = fetch_trending_books()
+            books = get_trending()
         else:
-            books = fetch_books_by_genre(genre)
+            books = get_books_by_genre(genre)
     except Exception as exc:
         status = "error"
         error = str(exc)
@@ -56,7 +92,7 @@ def search():
     books = []
 
     try:
-        books = search_books(query) if query else fetch_trending_books()
+        books = get_search_results(query) if query else get_trending()
     except Exception as exc:
         status = "error"
         error_message = str(exc)
@@ -98,7 +134,7 @@ def book_preview(book_id):
     book = initial
 
     try:
-        details = fetch_book_details_by_id(book_id)
+        details = get_book_details(book_id)
         merged = dict(details)
         merged["title"] = details.get("title") or initial["title"]
         merged["authors"] = details.get("authors") or initial["authors"]
@@ -134,6 +170,70 @@ def set_theme():
     response = redirect(next_path or url_for("home"))
     response.set_cookie("steered-theme", theme, max_age=60 * 60 * 24 * 365)
     return response
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("home"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = ""
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        conn = db.get_db()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        if user is None or not check_password_hash(user["password"], password):
+            error = "Invalid username or password."
+        else:
+            session.clear()
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            return redirect(url_for("home"))
+    return render_template(
+        "login.html",
+        theme=request.cookies.get("steered-theme", "light"),
+        error=error,
+    )
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    error = ""
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+        if not username:
+            error = "Username is required."
+        elif not password:
+            error = "Password is required."
+        elif password != confirm:
+            error = "Passwords do not match."
+        else:
+            conn = db.get_db()
+            existing = conn.execute(
+                "SELECT id FROM users WHERE username = ?", (username,)
+            ).fetchone()
+            if existing:
+                error = "Username already taken."
+            else:
+                conn.execute(
+                    "INSERT INTO users (username, password) VALUES (?, ?)",
+                    (username, generate_password_hash(password)),
+                )
+                conn.commit()
+                return redirect(url_for("login"))
+    return render_template(
+        "register.html",
+        theme=request.cookies.get("steered-theme", "light"),
+        error=error,
+    )
 
 
 if __name__ == "__main__":

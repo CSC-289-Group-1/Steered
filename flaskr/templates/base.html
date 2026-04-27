@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>STEERED</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
   </head>
@@ -24,9 +27,22 @@
           </nav>
 
           <div class="top-actions">
-            <div class="user-pill">
-              <span class="avatar" aria-hidden="true">SR</span>
-              <span>Hi, Reader</span>
+            <div class="user-dropdown">
+              <button type="button" class="user-pill" id="user-menu-btn" aria-haspopup="true" aria-expanded="false">
+                <span class="avatar" aria-hidden="true">SR</span>
+                <span>Welcome, {{current_user or 'sign in or register' }}</span>
+                <svg viewBox="0 0 24 24" class="icon-svg dropdown-chevron" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              <div class="dropdown-menu" id="user-menu" role="menu">
+                {% if current_user %}
+                  <a href="{{ url_for('logout') }}" class="dropdown-item" role="menuitem">Log out</a>
+                {% else %}
+                  <a href="{{ url_for('login') }}" class="dropdown-item" role="menuitem">Sign in</a>
+                  <a href="{{ url_for('register') }}" class="dropdown-item" role="menuitem">Register</a>
+                {% endif %}
+              </div>
             </div>
             <button type="button" class="primary-pill">Start Reading</button>
             {% set next_theme = 'dark' if theme == 'light' else 'light' %}
