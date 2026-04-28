@@ -37,6 +37,7 @@
               </button>
               <div class="dropdown-menu" id="user-menu" role="menu">
                 {% if current_user %}
+                  <a href="{{ url_for('profile') }}" class="dropdown-item" role="menuitem">My Profile</a>
                   <a href="{{ url_for('logout') }}" class="dropdown-item" role="menuitem">Log out</a>
                 {% else %}
                   <a href="{{ url_for('login') }}" class="dropdown-item" role="menuitem">Sign in</a>
@@ -83,14 +84,14 @@
           </svg>
         </a>
 
-        <a href="/search?tab=discovery" class="nav-icon-btn {% if page == 'search' %}active{% endif %}" aria-label="Discovery" title="Discovery">
+        <a href="/discovery" class="nav-icon-btn {% if page == 'discovery' %}active{% endif %}" aria-label="Discovery" title="Discovery">
           <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
             <circle cx="12" cy="12" r="9" />
             <path d="m15.7 8.3-2.8 6.2-6.2 2.8 2.8-6.2 6.2-2.8Z" />
           </svg>
         </a>
 
-        <a href="/search?tab=bookmarks" class="nav-icon-btn {% if page == 'search' %}active{% endif %}" aria-label="Bookmarks" title="Bookmarks">
+        <a href="/bookmarks" class="nav-icon-btn {% if page == 'bookmarks' %}active{% endif %}" aria-label="Bookmarks" title="Bookmarks">
           <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
             <path d="M6 3h12v18l-6-3.8L6 21V3Z" />
           </svg>

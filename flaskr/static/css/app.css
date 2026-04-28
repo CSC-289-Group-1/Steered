@@ -737,6 +737,19 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.bookmark-btn {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.bookmark-btn.bookmarked {
+  background: color-mix(in srgb, var(--accent-yellow) 68%, var(--bg-soft));
+  color: #6e4b00;
 }
 
 .preview-actions-top {
@@ -1025,7 +1038,8 @@
   color: var(--text-main);
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   border: 0;
   border-radius: 12px;
   background: var(--bg-soft);
@@ -1035,7 +1049,8 @@
   color: var(--text-main);
 }
 
-.form-group input:focus-visible {
+.form-group input:focus-visible,
+.form-group select:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent-yellow) 58%, transparent);
   outline-offset: 2px;
 }
@@ -1060,6 +1075,78 @@
 .btn-primary:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent-yellow) 58%, transparent);
   outline-offset: 2px;
+}
+
+.alert-success {
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--accent-green) 15%, var(--bg-soft));
+  color: color-mix(in srgb, var(--accent-green) 80%, #000);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-main);
+  background: var(--bg-soft);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  background: color-mix(in srgb, var(--accent-yellow) 35%, var(--bg-soft));
+}
+
+.profile-page {
+  padding-bottom: 24px;
+}
+
+.prefs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.prefs-section {
+  border-radius: 18px;
+  background: var(--bg-soft);
+  padding: 16px;
+}
+
+.prefs-section-title {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.prefs-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.prefs-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.discovery-empty {
+  padding: 24px 0 12px;
+}
+
+@media (max-width: 680px) {
+  .prefs-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .alert-error {

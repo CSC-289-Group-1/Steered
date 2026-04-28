@@ -25,6 +25,18 @@
         </svg>
         <span>Open Library</span>
       </a>
+
+      {% if current_user %}
+      <form method="POST" action="{{ url_for('toggle_bookmark', book_id=book.id) }}">
+        <button type="submit" class="preview-link icon-expand-link bookmark-btn {% if is_bookmarked %}bookmarked{% endif %}"
+          aria-label="{% if is_bookmarked %}Remove bookmark{% else %}Bookmark this book{% endif %}">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <path d="M6 3h12v18l-6-3.8L6 21V3Z" {% if is_bookmarked %}fill="currentColor"{% endif %} />
+          </svg>
+          <span>{% if is_bookmarked %}Bookmarked{% else %}Bookmark{% endif %}</span>
+        </button>
+      </form>
+      {% endif %}
     </div>
 
     <p class="preview-id">Book ID: {{ book.id }}</p>
@@ -41,24 +53,7 @@
       <p>{{ book.description }}</p>
     </div>
 
-    <section class="preview-widget">
-      <h2>Book Preview</h2>
-      {% if preview_stage == 'sourceNotice' %}
-      <div class="preview-state-screen">
-        <p class="status-message">Preview source: Open Library / Internet Archive.</p>
-        <a class="search-button eye-button" href="{{ book.previewEmbedUrl }}" target="_blank" rel="noreferrer noopener" aria-label="Open preview" title="Open preview">
-          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
-            <path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6Z" />
-            <circle cx="12" cy="12" r="2.8" />
-          </svg>
-        </a>
-      </div>
-      {% else %}
-      <div class="preview-state-screen">
-        <p class="status-message">This book has no preview.</p>
-      </div>
-      {% endif %}
-    </section>
+
 
     <section class="review-layout">
       <div class="review-section">
