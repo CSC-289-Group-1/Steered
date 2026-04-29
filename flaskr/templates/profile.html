@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-page">
+  <section class="section-card">
+    <div class="section-head">
+      <h2 class="section-title">Reading Preferences</h2>
+      <p class="section-subtitle">Tell us what you love (and what to skip) to power your Discovery feed.</p>
+    </div>
+
+    {% if success %}
+    <div class="alert-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="alert-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('profile') }}" class="prefs-form">
+
+      <div class="prefs-section">
+        <h3 class="prefs-section-title">Favorite Genres</h3>
+        <div class="prefs-row">
+          {% for i in [1, 2, 3] %}
+          <div class="form-group">
+            <label for="favorite_genre{{ i }}">Genre {{ i }}</label>
+            <select id="favorite_genre{{ i }}" name="favorite_genre{{ i }}">
+              <option value="">None</option>
+              {% for genre in supported_genres %}
+                {% if genre != 'All' %}
+                <option value="{{ genre }}"
+                  {% if prefs.get('favorite_genre' ~ i) == genre %}selected{% endif %}>
+                  {{ genre }}
+                </option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-section">
+        <h3 class="prefs-section-title">Favorite Authors</h3>
+        <div class="prefs-row">
+          {% for i in [1, 2, 3] %}
+          <div class="form-group">
+            <label for="favorite_author{{ i }}">Author {{ i }}</label>
+            <input type="text" id="favorite_author{{ i }}" name="favorite_author{{ i }}"
+              value="{{ prefs.get('favorite_author' ~ i) or '' }}"
+              placeholder="e.g. Ursula K. Le Guin">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-section">
+        <h3 class="prefs-section-title">Genres to Avoid</h3>
+        <div class="prefs-row">
+          {% for i in [1, 2, 3] %}
+          <div class="form-group">
+            <label for="disliked_genre{{ i }}">Genre {{ i }}</label>
+            <select id="disliked_genre{{ i }}" name="disliked_genre{{ i }}">
+              <option value="">None</option>
+              {% for genre in supported_genres %}
+                {% if genre != 'All' %}
+                <option value="{{ genre }}"
+                  {% if prefs.get('disliked_genre' ~ i) == genre %}selected{% endif %}>
+                  {{ genre }}
+                </option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-actions">
+        <button type="submit" class="btn-primary">Save Preferences</button>
+        <a href="{{ url_for('discovery') }}" class="btn-secondary">Go to Discovery</a>
+      </div>
+
+    </form>
+  </section>
+</div>
+{% endblock %}

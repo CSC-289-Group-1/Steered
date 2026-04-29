@@ -224,11 +224,11 @@ def derive_numeric_rating(work_data: Dict[str, Any]) -> str:
 
 
 def fetch_book_details_by_id(book_id: str) -> Dict[str, Any]:
-    if isinstance(book_id, str) and book_id.startswith("/works/"):
-        work_key = book_id
+    s = str(book_id or "").strip("/")
+    if s.startswith("works/"):
+        work_key = f"/{s}"
     else:
-        clean = str(book_id or "").lstrip("/")
-        work_key = f"/works/{clean}"
+        work_key = f"/works/{s}"
 
     work_res = requests.get(f"{OPEN_LIBRARY_WORKS_URL}{work_key}.json", timeout=14)
     if work_res.status_code != 200:
@@ -289,7 +289,7 @@ def fetch_book_details_by_id(book_id: str) -> Dict[str, Any]:
     has_preview = bool(preview_embed_url)
 
     return {
-        "id": work_key,
+        "id": work_key.lstrip("/"),
         "title": title,
         "authors": authors,
         "year": year,
@@ -305,6 +305,33 @@ def fetch_book_details_by_id(book_id: str) -> Dict[str, Any]:
         "archiveId": archive_id,
         "previewSource": preview_source,
     }
+
+
+def fetch_books_by_author(author: str) -> List[Dict[str, Any]]:
+    if not author or not author.strip():
+        return []
+    return fetch_docs(f"author:{author.strip()}", 12)
+
+
+def fetch_docs_light(query: str, limit: int = 12) -> List[Dict[str, Any]]:
+    """Like fetch_docs but skips per-book description enrichment for speed."""
+    endpoint = f"{OPEN_LIBRARY_SEARCH_URL}?q={quote_plus(query)}&limit={limit}"
+    response = requests.get(endpoint, timeout=14)
+    if response.status_code != 200:
+        raise RuntimeError("Failed to fetch books. Please try again.")
+    docs = response.json().get("docs", [])
+    return [normalize_doc(doc, idx) for idx, doc in enumerate(docs)]
+
+
+def fetch_books_by_genre_light(genre: str) -> List[Dict[str, Any]]:
+    query = GENRE_TO_QUERY.get(genre, GENRE_TO_QUERY["All"])
+    return fetch_docs_light(query, 12)
+
+
+def fetch_books_by_author_light(author: str) -> List[Dict[str, Any]]:
+    if not author or not author.strip():
+        return []
+    return fetch_docs_light(f"author:{author.strip()}", 12)
 
 
 def search_books(query: str) -> List[Dict[str, Any]]:
