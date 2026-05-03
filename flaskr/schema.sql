@@ -22,6 +22,7 @@ CREATE TABLE preferences (
     disliked_genre1 TEXT,
     disliked_genre2 TEXT,
     disliked_genre3 TEXT,
+    theme_query TEXT,
     custom_theme_tags TEXT,
 
     FOREIGN KEY (user_id) REFERENCES users (id)

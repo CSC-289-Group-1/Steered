@@ -1,5 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import math
+import sqlite3
+import datetime
 
 from flask import Flask, redirect, render_template, request, session, url_for, make_response
 from flask_caching import Cache
@@ -24,6 +26,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-change-me')
 app.config['DATABASE'] = os.path.join(app.instance_path, 'steered.sqlite')
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+app.config['TAG_LOG_FILE'] = os.path.join(app.instance_path, 'tag_updates.txt')
 
 os.makedirs(app.instance_path, exist_ok=True)
 db.init_app(app)
@@ -58,6 +61,42 @@ def get_books_by_author(author):
 @app.context_processor
 def inject_user():
     return {"current_user": session.get("username")}
+
+
+preferences_columns_checked = False
+
+
+def ensure_preferences_columns():
+    conn = db.get_db()
+    columns = [row[1] for row in conn.execute("PRAGMA table_info(preferences)").fetchall()]
+    if "theme_query" not in columns:
+        conn.execute("ALTER TABLE preferences ADD COLUMN theme_query TEXT")
+        conn.commit()
+
+
+@app.before_request
+def initialize_app():
+    global preferences_columns_checked
+    if preferences_columns_checked:
+        return
+    try:
+        ensure_preferences_columns()
+    except sqlite3.OperationalError:
+        # If the database or preferences table does not exist yet, allow init-db to create it.
+        pass
+    preferences_columns_checked = True
+
+
+def log_tag_update(user_id, username, theme_query, custom_tags):
+    message = (
+        f"{datetime.datetime.utcnow().isoformat()}Z | user_id={user_id} | username={username} | "
+        f"theme_query={theme_query or '<none>'} | tags={', '.join(custom_tags) if custom_tags else '<none>'}\n"
+    )
+    try:
+        with open(app.config['TAG_LOG_FILE'], 'a', encoding='utf-8') as fd:
+            fd.write(message)
+    except OSError:
+        pass
 
 
 def create_app():
@@ -391,12 +430,14 @@ def profile():
                 """UPDATE preferences SET
                     favorite_genre1=?, favorite_genre2=?, favorite_genre3=?,
                     favorite_author1=?, favorite_author2=?, favorite_author3=?,
-                    disliked_genre1=?, disliked_genre2=?, disliked_genre3=?
+                    disliked_genre1=?, disliked_genre2=?, disliked_genre3=?,
+                    theme_query=?, custom_theme_tags=?
                 WHERE user_id=?""",
                 (
                     prefs["favorite_genre1"], prefs["favorite_genre2"], prefs["favorite_genre3"],
                     prefs["favorite_author1"], prefs["favorite_author2"], prefs["favorite_author3"],
                     prefs["disliked_genre1"], prefs["disliked_genre2"], prefs["disliked_genre3"],
+                    theme_query, custom_tags_str,
                     user_id,
                 ),
             )
@@ -405,18 +446,21 @@ def profile():
                 """INSERT INTO preferences
                     (user_id, favorite_genre1, favorite_genre2, favorite_genre3,
                      favorite_author1, favorite_author2, favorite_author3,
-                     disliked_genre1, disliked_genre2, disliked_genre3)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                     disliked_genre1, disliked_genre2, disliked_genre3,
+                     theme_query, custom_theme_tags)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     user_id,
                     prefs["favorite_genre1"], prefs["favorite_genre2"], prefs["favorite_genre3"],
                     prefs["favorite_author1"], prefs["favorite_author2"], prefs["favorite_author3"],
                     prefs["disliked_genre1"], prefs["disliked_genre2"], prefs["disliked_genre3"],
+                    theme_query, custom_tags_str,
                 ),
             )
         conn.commit()
         session["theme_query"] = theme_query
         session['success'] = "Preferences saved!"
+        log_tag_update(user_id, session.get('username', ''), theme_query, selected_theme_tags)
         resp = make_response(redirect(url_for('profile')))
         resp.set_cookie('custom_theme_tags', custom_tags_str)
         return resp
@@ -426,6 +470,8 @@ def profile():
             "SELECT * FROM preferences WHERE user_id = ?", (user_id,)
         ).fetchone()
         prefs = dict(row) if row else {}
+        theme_query = prefs.get("theme_query", "")
+        selected_theme_tags = [tag.strip() for tag in (prefs.get("custom_theme_tags", "") or "").split(',') if tag.strip()]
 
     selected_genres = [
         prefs.get("favorite_genre1", ""),
@@ -439,8 +485,8 @@ def profile():
         prefs.get("disliked_genre3", ""),
     ]
     selected_disliked_genres = [g for g in selected_disliked_genres if g]
-    theme_query = session.get("theme_query", "")
-    selected_theme_tags = [tag.strip() for tag in request.cookies.get('custom_theme_tags', '').split(',') if tag.strip()]
+    theme_query = prefs.get("theme_query", "")
+    selected_theme_tags = [tag.strip() for tag in (prefs.get("custom_theme_tags", "") or "").split(',') if tag.strip()]
 
     # Count saved bookmarks
     bookmarks_row = conn.execute(
@@ -508,6 +554,7 @@ def discovery():
     status = "success"
     error = ""
     books = []
+    page = max(1, int(request.args.get("page", 1) or 1))
 
     try:
         tasks = []
@@ -520,15 +567,16 @@ def discovery():
             if author:
                 tasks.append((fetch_books_by_author_light, author))
 
-        theme_query = session.get("theme_query", "")
-        theme_tags = session.get("theme_tags", [])
+        theme_query = prefs.get("theme_query", "")
+        selected_theme_tags = [tag.strip() for tag in (prefs.get("custom_theme_tags", "") or "").split(',') if tag.strip()]
         combined_query = theme_query
-        if theme_tags:
-            tag_string = ", ".join(theme_tags)
+        if selected_theme_tags:
+            tag_string = ", ".join(selected_theme_tags)
             if combined_query:
                 combined_query += ", " + tag_string
             else:
                 combined_query = tag_string
+
         if combined_query:
             tasks.append((get_search_results, combined_query))
 
@@ -560,12 +608,25 @@ def discovery():
                 cats = [str(c).lower() for c in book.get("categories", [])]
                 if not any(d in cat for d in disliked for cat in cats):
                     filtered.append(book)
-            books = filtered[:18]
+            books = filtered
         else:
-            books = deduped[:18]
+            books = deduped
     except Exception as exc:
         status = "error"
         error = str(exc)
+
+    total_books = len(books)
+    items_per_page = 12
+    total_pages = max(1, math.ceil(total_books / items_per_page))
+    page = min(page, total_pages)
+    start = (page - 1) * items_per_page
+    display_books = books[start:start + items_per_page]
+    page_numbers = []
+    for candidate in range(1, total_pages + 1):
+        if total_pages <= 7 or candidate <= 2 or candidate > total_pages - 2 or abs(candidate - page) <= 1:
+            page_numbers.append(candidate)
+        elif page_numbers and page_numbers[-1] is not None:
+            page_numbers.append(None)
 
     selected_genres = [
         prefs.get("favorite_genre1", ""),
@@ -579,9 +640,8 @@ def discovery():
         prefs.get("disliked_genre3", ""),
     ]
     selected_disliked_genres = [g for g in selected_disliked_genres if g]
-    theme_query = session.get("theme_query", "")
-    custom_theme_tags_str = request.cookies.get('custom_theme_tags', '')
-    selected_theme_tags = [tag.strip() for tag in custom_theme_tags_str.split(',') if tag.strip()]
+    theme_query = prefs.get("theme_query", "")
+    selected_theme_tags = [tag.strip() for tag in (prefs.get("custom_theme_tags", "") or "").split(',') if tag.strip()]
     combined_theme_query = theme_query
     if selected_theme_tags:
         tag_string = ", ".join(selected_theme_tags)
@@ -595,12 +655,15 @@ def discovery():
         page="discovery",
         theme=request.cookies.get("steered-theme", "light"),
         has_prefs=True,
-        books=books,
+        books=display_books,
         status=status,
         error=error,
         selected_genres=selected_genres,
         selected_disliked_genres=selected_disliked_genres,
         combined_theme_query=combined_theme_query,
+        current_page=page,
+        total_pages=total_pages,
+        page_numbers=page_numbers,
     )
 
 

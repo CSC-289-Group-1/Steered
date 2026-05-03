@@ -59,6 +59,20 @@
     </article>
     {% endfor %}
   </div>
+
+  {% if total_pages and total_pages > 1 %}
+  <nav class="pagination" aria-label="Browse discovery results">
+    <a class="page-link{% if current_page <= 1 %} disabled{% endif %}" href="?page={{ current_page - 1 }}"{% if current_page <= 1 %} aria-disabled="true" tabindex="-1"{% endif %}>&lt;</a>
+    {% for number in page_numbers %}
+      {% if number is none %}
+        <span class="page-dots">…</span>
+      {% else %}
+        <a class="page-link{% if number == current_page %} active{% endif %}" href="?page={{ number }}">{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+    <a class="page-link{% if current_page >= total_pages %} disabled{% endif %}" href="?page={{ current_page + 1 }}"{% if current_page >= total_pages %} aria-disabled="true" tabindex="-1"{% endif %}>&gt;</a>
+  </nav>
+  {% endif %}
   {% else %}
   <p class="status-message">No results found for your preferences. Try updating them.</p>
   <a href="{{ url_for('profile') }}" class="btn-secondary" style="display:inline-block;margin-top:12px;">Edit Preferences</a>
