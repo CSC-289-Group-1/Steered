@@ -18,9 +18,9 @@ This folder contains the Flask-based implementation of the former React prototyp
 
 ```powershell
 - cd steered\flask_app
-- python -m venv .venv
-- .venv/bin/activate
+- source .venv/bin/activate
 - pip install -r requirements.txt
+- flask init-db
 - flask --app app run
 ```
 

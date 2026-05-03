@@ -25,7 +25,7 @@
   {% elif status == 'error' %}
   <p class="status-message error">{{ error_message }}</p>
   {% elif status == 'success' and display_books|length == 0 %}
-  <p class="status-message">No books found for “{{ query }}”.</p>
+  <p class="status-message">No books found for "{{ query }}".</p>
   {% elif status == 'success' %}
   <div class="results-grid">
     {% for book in display_books %}
@@ -38,11 +38,28 @@
         <h3 class="book-title">{{ book.title }}</h3>
         <p class="book-meta">{{ book.authors }}</p>
         <p class="book-hover-preview">{{ book.excerpt }}</p>
-        <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+        <a class="preview-link icon-button" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          <span class="visually-hidden">Open preview</span>
+        </a>
       </div>
     </article>
     {% endfor %}
   </div>
+
+  {% if total_pages and total_pages > 1 %}
+  <nav class="pagination" aria-label="Browse search results">
+    <a class="page-link{% if current_page <= 1 %} disabled{% endif %}" href="?q={{ query | urlencode }}&page={{ current_page - 1 }}"{% if current_page <= 1 %} aria-disabled="true" tabindex="-1"{% endif %}>&lt;</a>
+    {% for number in page_numbers %}
+      {% if number is none %}
+        <span class="page-dots">…</span>
+      {% else %}
+        <a class="page-link{% if number == current_page %} active{% endif %}" href="?q={{ query | urlencode }}&page={{ number }}">{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+    <a class="page-link{% if current_page >= total_pages %} disabled{% endif %}" href="?q={{ query | urlencode }}&page={{ current_page + 1 }}"{% if current_page >= total_pages %} aria-disabled="true" tabindex="-1"{% endif %}>&gt;</a>
+  </nav>
+  {% endif %}
   {% endif %}
 </section>
 {% endblock %}

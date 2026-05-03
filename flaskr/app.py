@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import math
 
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, session, url_for, make_response
 from flask_caching import Cache
 import os
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -98,6 +99,7 @@ def home():
 @app.route("/search")
 def search():
     query = request.args.get("q", "").strip()
+    page = max(1, int(request.args.get("page", 1) or 1))
     status = "success"
     error_message = ""
     books = []
@@ -109,7 +111,20 @@ def search():
         error_message = str(exc)
 
     section_title = f"Results for “{query}”" if query else "Trending recommendations"
+    items_per_page = 8
+    total_books = len(books)
+    total_pages = max(1, math.ceil(total_books / items_per_page))
+    page = min(page, total_pages)
+    start = (page - 1) * items_per_page
+    display_books = books[start:start + items_per_page]
 
+    page_numbers = []
+    for candidate in range(1, total_pages + 1):
+        if total_pages <= 7 or candidate <= 2 or candidate > total_pages - 2 or abs(candidate - page) <= 1:
+            page_numbers.append(candidate)
+        elif page_numbers and page_numbers[-1] is not None:
+            page_numbers.append(None)
+    
     return render_template(
         "search.html",
         page="search",
@@ -118,7 +133,10 @@ def search():
         status=status,
         error_message=error_message,
         section_title=section_title,
-        display_books=books[:18],
+        display_books=display_books,
+        current_page=page,
+        total_pages=total_pages,
+        page_numbers=page_numbers,
     )
 
 
@@ -261,6 +279,7 @@ def bookmarks():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    query = request.args.get("query", "").strip()
     user_id = session["user_id"]
     conn = db.get_db()
     rows = conn.execute(
@@ -289,11 +308,20 @@ def bookmarks():
             status = "error"
             error = str(exc)
 
+    if query:
+        books = [
+            book for book in books
+            if query.lower() in str(book.get("title", "")).lower()
+            or query.lower() in str(book.get("authors", "")).lower()
+            or query.lower() in str(book.get("description", "")).lower()
+        ]
+
     return render_template(
         "bookmarks.html",
         page="bookmarks",
         theme=request.cookies.get("steered-theme", "light"),
         books=books,
+        query=query,
         status=status,
         error=error,
     )
@@ -339,16 +367,21 @@ def profile():
     success = ""
 
     if request.method == "POST":
+        favorite_genres = request.form.getlist("favorite_genres")[:3]
+        disliked_genres = request.form.getlist("disliked_genres")[:3]
+        theme_query = request.form.get("theme_query", "").strip()
+        custom_tags_str = request.form.get("custom_tags", "").strip()
+        selected_theme_tags = [tag.strip() for tag in custom_tags_str.split(',') if tag.strip()]
         prefs = {
-            "favorite_genre1": request.form.get("favorite_genre1", ""),
-            "favorite_genre2": request.form.get("favorite_genre2", ""),
-            "favorite_genre3": request.form.get("favorite_genre3", ""),
+            "favorite_genre1": favorite_genres[0] if len(favorite_genres) > 0 else "",
+            "favorite_genre2": favorite_genres[1] if len(favorite_genres) > 1 else "",
+            "favorite_genre3": favorite_genres[2] if len(favorite_genres) > 2 else "",
             "favorite_author1": request.form.get("favorite_author1", "").strip(),
             "favorite_author2": request.form.get("favorite_author2", "").strip(),
             "favorite_author3": request.form.get("favorite_author3", "").strip(),
-            "disliked_genre1": request.form.get("disliked_genre1", ""),
-            "disliked_genre2": request.form.get("disliked_genre2", ""),
-            "disliked_genre3": request.form.get("disliked_genre3", ""),
+            "disliked_genre1": disliked_genres[0] if len(disliked_genres) > 0 else "",
+            "disliked_genre2": disliked_genres[1] if len(disliked_genres) > 1 else "",
+            "disliked_genre3": disliked_genres[2] if len(disliked_genres) > 2 else "",
         }
         existing = conn.execute(
             "SELECT id FROM preferences WHERE user_id = ?", (user_id,)
@@ -382,12 +415,38 @@ def profile():
                 ),
             )
         conn.commit()
-        success = "Preferences saved!"
+        session["theme_query"] = theme_query
+        session['success'] = "Preferences saved!"
+        resp = make_response(redirect(url_for('profile')))
+        resp.set_cookie('custom_theme_tags', custom_tags_str)
+        return resp
     else:
+        success = session.pop('success', '')
         row = conn.execute(
             "SELECT * FROM preferences WHERE user_id = ?", (user_id,)
         ).fetchone()
         prefs = dict(row) if row else {}
+
+    selected_genres = [
+        prefs.get("favorite_genre1", ""),
+        prefs.get("favorite_genre2", ""),
+        prefs.get("favorite_genre3", ""),
+    ]
+    selected_genres = [g for g in selected_genres if g]
+    selected_disliked_genres = [
+        prefs.get("disliked_genre1", ""),
+        prefs.get("disliked_genre2", ""),
+        prefs.get("disliked_genre3", ""),
+    ]
+    selected_disliked_genres = [g for g in selected_disliked_genres if g]
+    theme_query = session.get("theme_query", "")
+    selected_theme_tags = [tag.strip() for tag in request.cookies.get('custom_theme_tags', '').split(',') if tag.strip()]
+
+    # Count saved bookmarks
+    bookmarks_row = conn.execute(
+        "SELECT COUNT(*) as count FROM bookmarks WHERE user_id = ?", (user_id,)
+    ).fetchone()
+    saved_books_count = bookmarks_row["count"] if bookmarks_row else 0
 
     return render_template(
         "profile.html",
@@ -395,8 +454,31 @@ def profile():
         theme=request.cookies.get("steered-theme", "light"),
         prefs=prefs,
         supported_genres=supported_genres(),
+        selected_genres=selected_genres,
+        selected_disliked_genres=selected_disliked_genres,
+        theme_query=theme_query,
+        selected_theme_tags=selected_theme_tags,
         error=error,
         success=success,
+        saved_books_count=saved_books_count,
+    )
+
+
+@app.route("/api")
+def api_docs():
+    return render_template(
+        "api.html",
+        page="api",
+        theme=request.cookies.get("steered-theme", "light"),
+    )
+
+
+@app.route("/docs")
+def docs():
+    return render_template(
+        "docs.html",
+        page="docs",
+        theme=request.cookies.get("steered-theme", "light"),
     )
 
 
@@ -438,6 +520,18 @@ def discovery():
             if author:
                 tasks.append((fetch_books_by_author_light, author))
 
+        theme_query = session.get("theme_query", "")
+        theme_tags = session.get("theme_tags", [])
+        combined_query = theme_query
+        if theme_tags:
+            tag_string = ", ".join(theme_tags)
+            if combined_query:
+                combined_query += ", " + tag_string
+            else:
+                combined_query = tag_string
+        if combined_query:
+            tasks.append((get_search_results, combined_query))
+
         results = []
         if tasks:
             with ThreadPoolExecutor(max_workers=len(tasks)) as pool:
@@ -473,6 +567,29 @@ def discovery():
         status = "error"
         error = str(exc)
 
+    selected_genres = [
+        prefs.get("favorite_genre1", ""),
+        prefs.get("favorite_genre2", ""),
+        prefs.get("favorite_genre3", ""),
+    ]
+    selected_genres = [g for g in selected_genres if g]
+    selected_disliked_genres = [
+        prefs.get("disliked_genre1", ""),
+        prefs.get("disliked_genre2", ""),
+        prefs.get("disliked_genre3", ""),
+    ]
+    selected_disliked_genres = [g for g in selected_disliked_genres if g]
+    theme_query = session.get("theme_query", "")
+    custom_theme_tags_str = request.cookies.get('custom_theme_tags', '')
+    selected_theme_tags = [tag.strip() for tag in custom_theme_tags_str.split(',') if tag.strip()]
+    combined_theme_query = theme_query
+    if selected_theme_tags:
+        tag_string = ", ".join(selected_theme_tags)
+        if combined_theme_query:
+            combined_theme_query += ", " + tag_string
+        else:
+            combined_theme_query = tag_string
+
     return render_template(
         "discovery.html",
         page="discovery",
@@ -481,6 +598,9 @@ def discovery():
         books=books,
         status=status,
         error=error,
+        selected_genres=selected_genres,
+        selected_disliked_genres=selected_disliked_genres,
+        combined_theme_query=combined_theme_query,
     )
 
 

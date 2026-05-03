@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="api-hero">
+  <span class="api-label">
+    <span class="material-symbols-outlined">terminal</span>
+    API reference
+  </span>
+  <h1 class="api-title">Reading Toolkit API</h1>
+  <p class="api-subtitle">Read saved books, manage your profile, and power reading discovery from a clean REST interface.</p>
+</section>
+
+<section class="api-section api-stack">
+  <article class="api-card">
+    <div class="api-card-top">
+      <div class="api-card-icon-wrap">
+        <span class="material-symbols-outlined">bookmark_border</span>
+      </div>
+      <div>
+        <span class="api-card-tag">Saved books</span>
+        <h2 class="api-card-title">List saved titles</h2>
+      </div>
+    </div>
+    <p class="api-card-copy">Retrieve the books you have saved or bookmarked. Filter by genre, theme, and open reading status.</p>
+    <span class="api-card-secondary-tag">GET</span>
+    <code class="api-endpoint-path">/api/books?status=saved&amp;theme=cozy</code>
+  </article>
+
+  <article class="api-card">
+    <div class="api-card-top">
+      <div class="api-card-icon-wrap">
+        <span class="material-symbols-outlined">search</span>
+      </div>
+      <div>
+        <span class="api-card-tag">Discovery</span>
+        <h2 class="api-card-title">Query by theme</h2>
+      </div>
+    </div>
+    <p class="api-card-copy">Search for books using your profile tags and theme query. Receive personalized suggestions for the next reading session.</p>
+    <span class="api-card-secondary-tag">POST</span>
+    <code class="api-endpoint-path">/api/discovery</code>
+  </article>
+</section>
+
+<section class="api-section api-stack">
+  <article class="api-card">
+    <div class="api-card-top">
+      <div class="api-card-icon-wrap">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <div>
+        <span class="api-card-tag">Profile</span>
+        <h2 class="api-card-title">Update preferences</h2>
+      </div>
+    </div>
+    <p class="api-card-copy">Save your favorite genres, avoid disliked categories, and keep your reading moods synced with discovery.</p>
+    <span class="api-card-secondary-tag">PUT</span>
+    <code class="api-endpoint-path">/api/user/preferences</code>
+  </article>
+
+  <article class="api-card">
+    <div class="api-card-top">
+      <div class="api-card-icon-wrap">
+        <span class="material-symbols-outlined">lock</span>
+      </div>
+      <div>
+        <span class="api-card-tag">Security</span>
+        <h2 class="api-card-title">Authenticate safely</h2>
+      </div>
+    </div>
+    <p class="api-card-copy">Use session-based authentication to protect your saved books and profile settings.</p>
+    <span class="api-card-secondary-tag">GET</span>
+    <code class="api-endpoint-path">/api/auth/status</code>
+  </article>
+</section>
+
+<section class="api-section">
+  <article class="api-card">
+    <div class="api-card-top">
+      <div class="api-card-icon-wrap">
+        <span class="material-symbols-outlined">terminal</span>
+      </div>
+      <div>
+        <span class="api-card-tag">Example</span>
+        <h2 class="api-card-title">Request example</h2>
+      </div>
+    </div>
+    <p class="api-card-copy">Copy this example to query your saved books and reading preferences.</p>
+    <code class="api-code">curl -H "Authorization: Bearer &lt;token&gt;" "{{ request.url_root.rstrip('/') }}/api/books?status=saved"</code>
+  </article>
+</section>
+{% endblock %}

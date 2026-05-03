@@ -5,6 +5,13 @@
     <h2 class="section-title">Bookmarks</h2>
     <p class="section-subtitle">Books you've saved for later.</p>
   </div>
+  <form class="bookmark-search" action="{{ url_for('bookmarks') }}" method="get">
+    <input class="search-input search-input--compact" type="text" name="query" placeholder="Search bookmarks..." value="{{ query or '' }}" />
+    <button type="submit" class="search-button search-button--compact">Search</button>
+    {% if query %}
+    <a href="{{ url_for('bookmarks') }}" class="button-secondary button-secondary--compact">Clear</a>
+    {% endif %}
+  </form>
 
   {% if status == 'error' %}
   <p class="status-message error">{{ error }}</p>
@@ -20,7 +27,10 @@
         <h3 class="book-title">{{ book.title }}</h3>
         <p class="book-meta">{{ book.authors }}</p>
         <p class="book-hover-preview">{{ book.excerpt }}</p>
-        <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+        <a class="preview-link icon-button" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          <span class="visually-hidden">Open preview</span>
+        </a>
       </div>
     </article>
     {% endfor %}

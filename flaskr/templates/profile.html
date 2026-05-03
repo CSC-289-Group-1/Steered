@@ -1,85 +1,150 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="profile-page">
-  <section class="section-card">
-    <div class="section-head">
-      <h2 class="section-title">Reading Preferences</h2>
-      <p class="section-subtitle">Tell us what you love (and what to skip) to power your Discovery feed.</p>
+<section class="page-header">
+  <div class="header-content">
+    <h1 class="header-title">Welcome back, Reader</h1>
+    <p class="header-subtitle">Your intellectual sanctuary is ready. Continue your journey through the curated archives or explore fresh perspectives.</p>
+  </div>
+  {% if success %}
+  <div class="alert-success">{{ success }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="alert-error">{{ error }}</div>
+  {% endif %}
+</section>
+
+<section class="stats-grid">
+  <article class="stat-widget stat-widget--primary">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">local_fire_department</span>
+    </div>
+    <div class="stat-content">
+      <h3 class="stat-value">12</h3>
+      <p class="stat-label">Days Consecutive</p>
+    </div>
+  </article>
+
+  <article class="stat-widget stat-widget--secondary">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">auto_awesome</span>
+    </div>
+    <div class="stat-content">
+      <h3 class="stat-value">Fantasy</h3>
+      <p class="stat-label">Top Category</p>
+    </div>
+  </article>
+
+  <article class="stat-widget stat-widget--dark">
+    <div class="stat-icon">
+      <span class="material-symbols-outlined">bookmark</span>
+    </div>
+    <div class="stat-content">
+      <h3 class="stat-value">{{ saved_books_count }}</h3>
+      <p class="stat-label">Saved Titles</p>
+    </div>
+  </article>
+</section>
+
+<section class="section-card preferences-section">
+  <div class="section-head">
+    <h2 class="section-title">Book Preferences</h2>
+    <p class="section-subtitle">Select your favorite genres, themes, authors, and avoid the styles that don't fit your reading mood.</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('profile') }}" class="prefs-form">
+    <div class="prefs-grid">
+      <div class="prefs-block">
+        <div class="prefs-block-head">
+          <h3 class="prefs-block-title">Genres</h3>
+          <p class="prefs-block-copy">Choose up to three genres to shape your recommendations.</p>
+        </div>
+        <div class="genre-options">
+          {% for genre in supported_genres if genre != 'All' %}
+          <label class="genre-chip {% if genre in selected_genres %}active{% endif %}">
+            <input type="checkbox" name="favorite_genres" value="{{ genre }}" {% if genre in selected_genres %}checked{% endif %} />
+            <span>{{ genre }}</span>
+            {% if genre in selected_genres %}
+            <span class="pill-remove" aria-hidden="true">×</span>
+            {% endif %}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-block">
+        <div class="prefs-block-head">
+          <h3 class="prefs-block-title">Reading themes</h3>
+          <p class="prefs-block-copy">Add custom theme tags and a discovery query to shape your recommendations.</p>
+        </div>
+        <div class="theme-input-row">
+          <label class="theme-input-label" for="theme_query">Automatic discovery query</label>
+          <input class="theme-input" type="text" id="theme_query" name="theme_query" value="{{ theme_query or '' }}" placeholder="e.g. slow burn, cozy mysteries" />
+        </div>
+        <div class="theme-input-row">
+          <label class="theme-input-label" for="custom_tags">Custom theme tags</label>
+          <div class="tag-input-group">
+            <input class="theme-input tag-input" type="text" id="tag_input" placeholder="Add a tag..." />
+            <button type="button" class="tag-add-btn" id="add_tag_btn" aria-label="Add tag">
+              <span class="material-symbols-outlined">check</span>
+            </button>
+          </div>
+          <input type="hidden" name="custom_tags" id="custom_tags" value="{{ selected_theme_tags | join(', ') if selected_theme_tags else '' }}" />
+        </div>
+        <div class="theme-tags">
+          {% if theme_query %}
+          <label class="theme-tag theme-query-pill active">
+            <input type="checkbox" name="theme_tags" value="{{ theme_query }}" checked />
+            <span>{{ theme_query }}</span>
+            <button type="button" class="pill-remove" data-remove="theme-query" aria-label="Remove search query">×</button>
+          </label>
+          {% endif %}
+          {% for tag in selected_theme_tags %}
+          <label class="theme-tag active">
+            <input type="checkbox" name="theme_tags" value="{{ tag }}" checked />
+            <span>{{ tag }}</span>
+            <span class="pill-remove" aria-hidden="true">×</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-block">
+        <div class="prefs-block-head">
+          <h3 class="prefs-block-title">Favorite authors</h3>
+          <p class="prefs-block-copy">Add the authors you love most to tune the feed.</p>
+        </div>
+        <div class="prefs-row prefs-row--stacked">
+          {% for i in [1, 2, 3] %}
+          <div class="form-group">
+            <input type="text" id="favorite_author{{ i }}" name="favorite_author{{ i }}" value="{{ prefs.get('favorite_author' ~ i) or '' }}" placeholder="Author {{ i }}" />
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="prefs-block">
+        <div class="prefs-block-head">
+          <h3 class="prefs-block-title">Genres to avoid</h3>
+          <p class="prefs-block-copy">Choose up to three genres to exclude from discovery results.</p>
+        </div>
+        <div class="genre-options">
+          {% for genre in supported_genres if genre != 'All' %}
+          <label class="genre-chip {% if genre in selected_disliked_genres %}active active-deny{% endif %}">
+            <input type="checkbox" name="disliked_genres" value="{{ genre }}" {% if genre in selected_disliked_genres %}checked{% endif %} />
+            <span>{{ genre }}</span>
+            {% if genre in selected_disliked_genres %}
+            <span class="pill-remove" aria-hidden="true">×</span>
+            {% endif %}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
-    {% if success %}
-    <div class="alert-success">{{ success }}</div>
-    {% endif %}
-    {% if error %}
-    <div class="alert-error">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('profile') }}" class="prefs-form">
-
-      <div class="prefs-section">
-        <h3 class="prefs-section-title">Favorite Genres</h3>
-        <div class="prefs-row">
-          {% for i in [1, 2, 3] %}
-          <div class="form-group">
-            <label for="favorite_genre{{ i }}">Genre {{ i }}</label>
-            <select id="favorite_genre{{ i }}" name="favorite_genre{{ i }}">
-              <option value="">None</option>
-              {% for genre in supported_genres %}
-                {% if genre != 'All' %}
-                <option value="{{ genre }}"
-                  {% if prefs.get('favorite_genre' ~ i) == genre %}selected{% endif %}>
-                  {{ genre }}
-                </option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="prefs-section">
-        <h3 class="prefs-section-title">Favorite Authors</h3>
-        <div class="prefs-row">
-          {% for i in [1, 2, 3] %}
-          <div class="form-group">
-            <label for="favorite_author{{ i }}">Author {{ i }}</label>
-            <input type="text" id="favorite_author{{ i }}" name="favorite_author{{ i }}"
-              value="{{ prefs.get('favorite_author' ~ i) or '' }}"
-              placeholder="e.g. Ursula K. Le Guin">
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="prefs-section">
-        <h3 class="prefs-section-title">Genres to Avoid</h3>
-        <div class="prefs-row">
-          {% for i in [1, 2, 3] %}
-          <div class="form-group">
-            <label for="disliked_genre{{ i }}">Genre {{ i }}</label>
-            <select id="disliked_genre{{ i }}" name="disliked_genre{{ i }}">
-              <option value="">None</option>
-              {% for genre in supported_genres %}
-                {% if genre != 'All' %}
-                <option value="{{ genre }}"
-                  {% if prefs.get('disliked_genre' ~ i) == genre %}selected{% endif %}>
-                  {{ genre }}
-                </option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="prefs-actions">
-        <button type="submit" class="btn-primary">Save Preferences</button>
-        <a href="{{ url_for('discovery') }}" class="btn-secondary">Go to Discovery</a>
-      </div>
-
-    </form>
-  </section>
-</div>
+    <div class="prefs-actions prefs-actions--right">
+      <button type="submit" class="button-primary">Save preferences</button>
+      <a href="{{ url_for('discovery') }}" class="button-secondary">Explore More</a>
+    </div>
+  </form>
+</section>
 {% endblock %}

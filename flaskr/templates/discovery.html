@@ -6,6 +6,32 @@
     <p class="section-subtitle">Books curated from your favorite genres and authors.</p>
   </div>
 
+  {% if has_prefs %}
+  <div class="discovery-filter-bar">
+    <button type="button" class="filter-toggle">
+      <span class="material-symbols-outlined">filter_alt</span>
+      Filters
+      <span class="filter-count">{{ selected_genres | length + (1 if combined_theme_query else 0) + selected_disliked_genres | length }}</span>
+    </button>
+    <a href="{{ url_for('profile') }}" class="button-secondary button-secondary--compact">Manage filters</a>
+  </div>
+  <div class="active-filter-row">
+    {% if selected_genres or combined_theme_query or selected_disliked_genres %}
+      {% for genre in selected_genres %}
+      <span class="filter-pill">{{ genre }}</span>
+      {% endfor %}
+      {% if combined_theme_query %}
+      <span class="filter-pill">{{ combined_theme_query }}</span>
+      {% endif %}
+      {% for genre in selected_disliked_genres %}
+      <span class="filter-pill filter-pill--denied">Avoid {{ genre }}</span>
+      {% endfor %}
+    {% else %}
+      <p class="section-subtitle">No active filters detected yet.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% if not has_prefs %}
   <div class="discovery-empty">
     <p class="section-subtitle">You haven't set up your reading preferences yet.</p>
@@ -25,7 +51,10 @@
         <h3 class="book-title">{{ book.title }}</h3>
         <p class="book-meta">{{ book.authors }}</p>
         <p class="book-hover-preview">{{ book.excerpt }}</p>
-        <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+        <a class="preview-link icon-button" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          <span class="visually-hidden">Open preview</span>
+        </a>
       </div>
     </article>
     {% endfor %}
