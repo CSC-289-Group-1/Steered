@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
   </head>
@@ -20,9 +21,9 @@
           </div>
 
           <nav class="top-menu" aria-label="Top menu">
-            <a href="/" class="menu-link">Dashboard</a>
-            <a href="#" class="menu-link">Docs</a>
-            <a href="#" class="menu-link">APIs</a>
+            <a href="/" class="menu-link {% if page == 'home' %}active{% endif %}">Dashboard</a>
+            <a href="/docs" class="menu-link {% if page == 'docs' %}active{% endif %}">Docs</a>
+            <a href="/api" class="menu-link {% if page == 'api' %}active{% endif %}">APIs</a>
             <a href="https://github.com/CSC-289-Group-1/Steered" class="menu-link" target="_blank" rel="noreferrer noopener">GitHub</a>
           </nav>
 
@@ -45,7 +46,9 @@
                 {% endif %}
               </div>
             </div>
-            <button type="button" class="primary-pill">Start Reading</button>
+            <a href="{{ url_for('bookmarks') }}" class="primary-pill icon-only" aria-label="Start reading" title="Start reading">
+              <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+            </a>
             {% set next_theme = 'dark' if theme == 'light' else 'light' %}
             <a
               href="{{ url_for('set_theme', theme=next_theme, next=request.full_path if request.query_string else request.path) }}"

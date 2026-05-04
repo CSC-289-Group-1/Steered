@@ -24,6 +24,11 @@ GENRE_TO_QUERY = {
     "History": "history",
     "Sci-Fi": "science fiction",
     "Mystery": "mystery",
+    "Non-Fiction": "nonfiction",
+    "Literature": "literature",
+    "Biography": "biography",
+    "Philosophy": "philosophy",
+    "Poetry": "poetry",
 }
 
 works_description_cache: Dict[str, str] = {}

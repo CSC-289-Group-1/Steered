@@ -40,7 +40,10 @@
             <h3 class="book-title">{{ book_of_day.title }}</h3>
             <p class="book-meta">{{ book_of_day.authors }}</p>
             <p class="book-hover-preview">{{ book_of_day.excerpt }}</p>
-            <a class="preview-link" href="/book/{{ book_of_day.id | urlencode }}?title={{ book_of_day.title | urlencode }}&authors={{ book_of_day.authors | urlencode }}&year={{ book_of_day.year | urlencode }}&cover={{ book_of_day.coverImage | urlencode }}&link={{ book_of_day.previewLink | urlencode }}&description={{ book_of_day.description | urlencode }}">Open preview</a>
+            <a class="preview-link icon-button" href="/book/{{ book_of_day.id | urlencode }}?title={{ book_of_day.title | urlencode }}&authors={{ book_of_day.authors | urlencode }}&year={{ book_of_day.year | urlencode }}&cover={{ book_of_day.coverImage | urlencode }}&link={{ book_of_day.previewLink | urlencode }}&description={{ book_of_day.description | urlencode }}">
+              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              <span class="visually-hidden">Open preview</span>
+            </a>
           </div>
         </article>
         {% elif status == 'loading' %}
@@ -90,7 +93,10 @@
             <h3 class="book-title">{{ book.title }}</h3>
             <p class="book-meta">{{ book.authors }}</p>
             <p class="book-hover-preview">{{ book.excerpt }}</p>
-            <a class="preview-link" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">Open preview</a>
+            <a class="preview-link icon-button" href="/book/{{ book.id | urlencode }}?title={{ book.title | urlencode }}&authors={{ book.authors | urlencode }}&year={{ book.year | urlencode }}&cover={{ book.coverImage | urlencode }}&link={{ book.previewLink | urlencode }}&description={{ book.description | urlencode }}">
+              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              <span class="visually-hidden">Open preview</span>
+            </a>
           </div>
         </article>
         {% endfor %}
@@ -98,26 +104,5 @@
       {% endif %}
     </section>
   </div>
-
-  <aside class="featured-rail">
-    <h3 class="rail-title">Quick widgets</h3>
-    <div class="rail-widget compact">
-      <p class="widget-label">Reading streak</p>
-      <p class="rail-number">12 days</p>
-      <p class="rail-muted">Keep momentum with 15 mins/day.</p>
-    </div>
-
-    <div class="rail-widget compact">
-      <p class="widget-label">Top category</p>
-      <p class="rail-number">Fantasy</p>
-      <p class="rail-muted">Based on your latest activity.</p>
-    </div>
-
-    <div class="rail-widget compact">
-      <p class="widget-label">Saved books</p>
-      <p class="rail-number">27</p>
-      <p class="rail-muted">Bookmarks are ready for your next session.</p>
-    </div>
-  </aside>
 </section>
 {% endblock %}
