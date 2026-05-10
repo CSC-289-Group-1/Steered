@@ -600,43 +600,39 @@ SENTRY_DSN=<if-using-sentry>
 
 ## 9. Lessons Learned & Retrospective
 
-### Sejiro K. – Backend & API Integration Lead
-**What I Learned:**
-Building a reliable API integration layer taught me the importance of resilience patterns. Open Library's API is free but occasionally slow or rate-limited. I learned to implement connection timeouts, caching strategies, and graceful degradation (fallbacks when detailed data unavailable).
-
+### Sejiro K. – N/A
+N/A
 **What I'd Do Differently:**
-I'd start with comprehensive API contract tests earlier. We lost a week debugging why descriptions weren't loading; a test suite would have caught schema changes from Open Library immediately.
+N/A
 
 **What I'm Proud Of:**
-The `books_service.py` module is clean, well-organized, and handles 10+ different API envelope formats Open Library returns. It's a solid foundation for future ML-powered recommendations.
+N/A
+---
+
+### Shane J. – Full-Stack & Backend Lead
+**What I Learned:**
+N/A
+
+**What I'd Do Differently:**
+N/A
+
+**What I'm Proud Of:**
+N/A
+---
+
+### Damian D. – N/A
+**What I Learned:**
+N/A
+
+**What I'd Do Differently:**
+N/A
+
+**What I'm Proud Of:**
+N/A
 
 ---
 
-### Shane J. – Frontend & UI Lead
-**What I Learned:**
-Building responsive Vanilla CSS without Bootstrap was challenging but educational. I learned that CSS Grid and Flexbox are powerful enough for most layouts; framework dependencies often mask deeper CSS knowledge.
-
-**What I'd Do Differently:**
-I'd invest in design tokens (color palette, spacing scale, typography) earlier. We tweaked colors and spacing throughout the project; a unified design system would have accelerated mockup-to-code timelines.
-
-**What I'm Proud Of:**
-The light/dark theme toggle is elegant and performant. No JavaScript framework bloat, just clean CSS variables and minimal JS. Users really appreciate the persistent preference.
-
----
-
-### Damian D. – Database & Authentication
-**What I Learned:**
-SQLite is great for prototyping but has real limitations at scale (concurrent writes, lack of schema enforcement). I learned the importance of choosing the right database from day one, not retrofitting later.
-
-**What I'd Do Differently:**
-I'd have pre-designed for PostgreSQL migration. The schema was compatible, but data migration tooling wasn't tested until late. Catching this in Sprint 1 would have saved time.
-
-**What I'm Proud Of:**
-The authentication system is robust. We use Werkzeug's password hashing (Argon2), not homemade crypto. Users feel secure, and we have proper session management with no security shortcuts.
-
----
-
-### Laila S. – Product Lead & Discovery Algorithm
+### Laila S. – Project Lead & Frontend / UI Lead
 **What I Learned:**
 Recommendation algorithms are deceptively complex. A "simple" theme-based filter involves tuning threshold values, handling edge cases (no preferences set), and dealing with sparse data (new users). Machine learning is necessary for true personalization, but even simple heuristics require iteration.
 
@@ -663,8 +659,8 @@ The profile preferences page is intuitive. Users immediately understand how to i
 1. **Write tests first** (TDD). It's slower upfront but catches regressions faster.
 2. **Design the database** before writing a line of backend code.
 3. **User stories should have acceptance criteria.** Ambiguity wastes sprint time.
-4. **Demo to stakeholders weekly,** not just at the end. Early feedback is cheaper than late pivots.
-5. **Keep a decision log** (ADRs: Architecture Decision Records). Explain *why* you chose Python Flask over Node, SQLite over Postgres at the time, etc. Invaluable for onboarding.
+4. **Delegate tasks** to team members more strictly so workload is not unfair on others.
+5. **Keep a decision log** (ADRs: Architecture Decision Records). Explain *why* you chose Python Flask over Node, SQLite over Postgres at the time, etc. Complete docs as the project progresses rather than at the very end.
 
 ---
 
