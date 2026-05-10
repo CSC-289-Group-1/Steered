@@ -50,13 +50,12 @@ The application is in active development on the `ui-improvements` branch with re
 ---
 
 ## 2. Team Roster & Roles
-
 | Name | GitHub Username | Primary Role(s) | Main Contribution |
-|------|-----------------|------------------|-------------------|
-| Sejiro K. | — |
-| Shane J. | ShaneJobes | Frontend/UI |  Full-stack Development | Database schema and user authentication system |  Profile preferences system | User Registration & Login services
-| Damian D. | — |
-| Laila S. | — | Product Lead / Frontend/UI | Feature coordination, discovery algorith | Template design and responsive CSS styling | Backend/API Integration | Open Library service layer and book data fetching logic |
+|------|-----------------|-----------------|-------------------|
+| Sejiro K. | DaDankMan | N/A | N/A |
+| Shane J. | ShaneJobes | Frontend/UI & Full-Stack Development |  User Registration & Login services, Database schema design and session management, User authentication, Profile preferences system , templates, and responsive UI |
+| Damian D. | DTSNRaw | User Registration | N/A |
+| Laila S. | stevens0nl | Product Lead & Frontend/UI | Discovery algorithms, user preferences, and feature coordination, Template design and responsive CSS styling, Open Library service layer and book data fetching logic |
 
 **Scrum Master Rotations:**
 - Sprint 1–2: TBD
