@@ -54,7 +54,7 @@ The application is in active development on the `ui-improvements` branch with re
 |------|-----------------|-----------------|-------------------|
 | Sejiro K. | DaDankMan | N/A | N/A |
 | Shane J. | ShaneJobes | Frontend/UI & Full-Stack Development |  User Registration & Login services, Database schema design and session management, User authentication, Profile preferences system , templates, and responsive UI |
-| Damian D. | DTSNRaw | User Registration | N/A |
+| Damian D. | DTSNRaw | User Registration | User Registration and login. Playtesting. General help with the project.  |
 | Laila S. | stevens0nl | Product Lead & Frontend/UI | Discovery algorithms, user preferences, and feature coordination, Template design and responsive CSS styling, Open Library service layer and book data fetching logic |
 
 **Scrum Master Rotations:**
