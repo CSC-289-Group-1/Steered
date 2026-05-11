@@ -611,15 +611,13 @@ N/A
 
 ### Shane J. – Full-Stack & Backend Lead
 **What I Learned:**
-I learned a lot about front end developement, I had minimal HTML experience before this project and there was a lot to learn about it. Using flask seemed complicated at the start, but after some trial and error it became easier to make it work. 
+I learned a lot about front end development. I had minimal HTML experience before this project and there was a lot to learn about it. Using Flask seemed complicated at the start, but after some trial and error it became easier to make it work.
 
 **What I'd Do Differently:**
-I would have spent more time planning the features we needed rather than just making some early ideas and going with them. Talking things out in more detail would have helped keep the flow moving more smoothly, and stopped wasted time when redoing a feature that seemed complete.
+I would have spent more time planning the features we needed rather than just making some early ideas and going with them. Talking things out in more detail would have helped keep the flow moving more smoothly and stopped wasted time when redoing a feature that seemed complete.
 
 **What I'm Proud Of:**
-
-I'm proud of the optimization made to the app. It was very slow in the early iterations and through the use of flask caching and claude recommending some changes the app started working much smoother, with minimal wait time between pages. The app is also very intuitive and simple to use,
-I feel we did very well when creating the ui.
+I'm proud of the optimization made to the app. It was very slow in the early iterations and through the use of Flask caching and Claude recommending some changes, the app started working much smoother with minimal wait time between pages. The app is also very intuitive and simple to use. I feel we did very well when creating the UI.
 ---
 
 ### Damian D. – N/A
