@@ -620,15 +620,15 @@ I would have spent more time planning the features we needed rather than just ma
 I'm proud of the optimization made to the app. It was very slow in the early iterations and through the use of Flask caching and Claude recommending some changes, the app started working much smoother with minimal wait time between pages. The app is also very intuitive and simple to use. I feel we did very well when creating the UI.
 ---
 
-### Damian D. – N/A
+### Damian D. – User Registration
 **What I Learned:**
-N/A
+I learned how to work well with a team. Creating an effective login system. (Had to retype most of this because it didn't save)
 
 **What I'd Do Differently:**
-N/A
+I wish I contributed a little more to the project. Having better time management. More transparency.
 
 **What I'm Proud Of:**
-N/A
+I'm proud of the user registration, and database schema. HTML is one of my strong suits.
 
 ---
 
@@ -710,7 +710,7 @@ This file documents AI assistant context (GitHub Copilot, ChatGPT, etc.) used du
 | Laila Stevenson | 8 | Recommendations, profile, discovery |
 | ShaneJobes | 5 | Frontend/UI, templates |
 | Sejiro K. | — | Backend API integration |
-| Damian D. | — | Database schema, auth |
+| Damian D. | 2 | Database schema, auth |
 
 *Note:* Some contributors did not have Git commits (pair programming or direct commits by others). Actual hours/lines may differ from commit count.
 
